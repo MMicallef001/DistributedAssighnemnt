@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/customerMicroservice/distributedprogramming-386320-7cd52fa89f04.json
+/productCatalougeMicroservice/distributedprogramming-386320-7cd52fa89f04.json
+/distributedprogramming-386320-7cd52fa89f04.json
