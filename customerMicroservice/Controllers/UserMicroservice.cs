@@ -1,5 +1,5 @@
 ﻿using customerMicroservice.DataAccess;
-using customerMicroservice.Models;
+using Common.Models;
 using Google.Cloud.Firestore.V1;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

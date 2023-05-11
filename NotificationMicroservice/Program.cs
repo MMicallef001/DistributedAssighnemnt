@@ -1,11 +1,14 @@
-
-using PaymentMicroservice.DataAccess;
+using NotificationMicroservice.DataAccess;
 
 string projectId = "distributedprogramming-386320";
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<FirebasePaymentsRepo>(provider => new FirebasePaymentsRepo(projectId));
+// Add services to the container.
+
+builder.Services.AddControllers();
+
+builder.Services.AddScoped<FirebaseNotificationRepo>(provider => new FirebaseNotificationRepo(projectId));
 
 var environment = builder.Services.BuildServiceProvider().GetRequiredService<IWebHostEnvironment>();
 
@@ -13,9 +16,6 @@ string credential_path = System.IO.Path.Combine(environment.ContentRootPath, "di
 
 System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credential_path);
 
-
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

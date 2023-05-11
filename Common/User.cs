@@ -1,6 +1,6 @@
 ﻿using Google.Cloud.Firestore;
 
-namespace customerMicroservice.Models
+namespace Common.Models
 {
 
     [FirestoreData]

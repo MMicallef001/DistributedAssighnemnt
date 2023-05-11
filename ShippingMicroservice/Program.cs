@@ -1,18 +1,17 @@
-
-using PaymentMicroservice.DataAccess;
+using ShippingMicroservice.DataAccess;
+using static Google.Cloud.Firestore.V1.StructuredQuery.Types;
 
 string projectId = "distributedprogramming-386320";
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<FirebasePaymentsRepo>(provider => new FirebasePaymentsRepo(projectId));
+builder.Services.AddScoped<FirebaseShipingRepo>(provider => new FirebaseShipingRepo(projectId));
 
 var environment = builder.Services.BuildServiceProvider().GetRequiredService<IWebHostEnvironment>();
 
 string credential_path = System.IO.Path.Combine(environment.ContentRootPath, "distributedprogramming-386320-7cd52fa89f04.json");
 
 System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credential_path);
-
 
 
 // Add services to the container.
