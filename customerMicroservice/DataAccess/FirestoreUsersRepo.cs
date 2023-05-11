@@ -12,7 +12,6 @@ namespace customerMicroservice.DataAccess
         {
             db = FirestoreDb.Create(project);
         }
-        public virtual DbSet<User> UserMicroContext { get; set; }
 
         public async Task<bool> RegisterUser(User u)
         {
@@ -33,7 +32,10 @@ namespace customerMicroservice.DataAccess
             QuerySnapshot UsersQuerySnapshot = await usersQuery.GetSnapshotAsync();
 
             DocumentSnapshot documentSnapshot = UsersQuerySnapshot.Documents.FirstOrDefault();
-            if (documentSnapshot.Exists == false) throw new Exception("Book does not exist");
+            if (documentSnapshot.Exists == false)
+            {
+                return false;
+            }
             else
             {
                 string passwordFromDb = documentSnapshot.GetValue<string>(new FieldPath("Password")); // Get the password field from 
@@ -45,17 +47,24 @@ namespace customerMicroservice.DataAccess
                 return false;
             }
         }
-        public async Task<User> LoginUser(string id)
+        public async Task<User> GetUserDetails(string id)
         {
             Query booksQuery = db.Collection("Users").WhereEqualTo("Id", id);
             QuerySnapshot booksQuerySnapshot = await booksQuery.GetSnapshotAsync();
 
             DocumentSnapshot documentSnapshot = booksQuerySnapshot.Documents.FirstOrDefault();
-            if (documentSnapshot.Exists == false) return null;
-            else
+            try
             {
-                User result = documentSnapshot.ConvertTo<User>();
-                return result;
+                if (documentSnapshot.Exists == false) return null;
+                else
+                {
+                    User result = documentSnapshot.ConvertTo<User>();
+                    return result;
+                }
+            }
+            catch
+            {
+                return null;
             }
         }
     }

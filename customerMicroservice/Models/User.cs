@@ -17,8 +17,12 @@ namespace customerMicroservice.Models
         [FirestoreProperty]
         public string Email { get; set; }
         [FirestoreProperty]
+        public string Password { get; set; }
+        [FirestoreProperty]
         public string PhoneNumber { get; set; }
         [FirestoreProperty]
         public string address { get; set; }
+
+
     }
 }

@@ -35,13 +35,13 @@ namespace customerMicroservice.Controllers
             return NoContent();               
          }
 
-        [HttpPut("id")]
+        [HttpPost()]
         public async Task<IActionResult> LoginUser(string email, string password)
         {
 
 
-            var check = _context.Login(email, password);
-
+            var check = await _context.Login(email, password);
+        
             if (check)
             {
                 return Ok();
@@ -54,14 +54,18 @@ namespace customerMicroservice.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<User>>> GetUserDetails(string id)
         {
-            var userDetails = await _context.GetUserDetails(id);
-
-            if (userDetails == null)
+            try
             {
+                var userDetails = await _context.GetUserDetails(id);
+                if (userDetails == null)
+                {
+                    return NotFound();
+                }
+                return Ok(userDetails);
+            }
+            catch {
                 return NotFound();
             }
-            return Ok(userDetails);
-
         }
     }
 }

@@ -1,8 +1,4 @@
-using customerMicroservice.DataAccess;
-using Google.Cloud.Firestore.V1;
-using Microsoft.Extensions.Hosting;
-using static Google.Cloud.Firestore.V1.StructuredQuery.Types;
-
+using ordersMicroservice.DataAccess;
 
 string projectId = "distributedprogramming-386320";
 
@@ -11,9 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 
-builder.Services.AddControllers();
-
-builder.Services.AddScoped<FirestoreUsersRepo>(provider => new FirestoreUsersRepo(projectId));
+builder.Services.AddScoped<FirebaseOrderRepo>(provider => new FirebaseOrderRepo(projectId));
 
 var environment = builder.Services.BuildServiceProvider().GetRequiredService<IWebHostEnvironment>();
 
@@ -22,9 +16,11 @@ string credential_path = System.IO.Path.Combine(environment.ContentRootPath, "di
 System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credential_path);
 
 
+
+builder.Services.AddControllers();
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -39,7 +35,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
