@@ -20,7 +20,8 @@ namespace customerMicroservice.Controllers
             _context = context;
         }
 
-        [HttpPut()]
+        [Route("api/UserMicroservice/RegisterUser")]
+        [HttpPost()]
         public async Task<IActionResult> RegisterUser(User user)
         {
 
