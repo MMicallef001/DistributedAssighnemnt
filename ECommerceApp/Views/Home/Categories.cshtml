@@ -1,0 +1,18 @@
+﻿@model IEnumerable<Common.ProductCategory>
+
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<h1>Categories</h1>
+
+<h4>Select A category</h4>
+
+
+@foreach (var category in Model)
+{
+    <form method="post" asp-action="CategoryClicked">
+        <input type="hidden" name="categoryName" value="@category.Name" />
+        <input type="submit" value="@category.Name" />
+    </form>
+}

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Common;
 
 namespace ECommerceApp.Controllers
 {
@@ -72,7 +73,7 @@ namespace ECommerceApp.Controllers
                         new ClaimsPrincipal(claimsIdentity),
                         authProperties);
 
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Categories");
                 }
                 else
                 {
@@ -115,7 +116,7 @@ namespace ECommerceApp.Controllers
                             new ClaimsPrincipal(claimsIdentity),
                             authProperties);
 
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("Categories");
                     }
                     else
                     {
@@ -139,6 +140,32 @@ namespace ECommerceApp.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index");
         }
+
+
+        [HttpGet][Authorize]
+        public IActionResult Categories()
+        {
+            List<ProductCategory> categories = new List<ProductCategory>
+            {
+                new ProductCategory { Name = "Laptop" },
+                new ProductCategory { Name = "Headphone" },
+                new ProductCategory { Name = "keyboard" },
+                new ProductCategory { Name = "webcam" },
+                new ProductCategory { Name = "mouse" },
+            };
+
+            return View(categories);
+        }
+
+        [HttpPost]
+        public IActionResult CategoryClicked(string categoryName)
+        {
+            // Here, you can handle the clicked category as needed.
+            // For now, just redirect back to the categories page.
+            return RedirectToAction("Categories");
+        }
+
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
