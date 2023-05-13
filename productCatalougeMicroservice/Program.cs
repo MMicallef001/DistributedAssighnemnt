@@ -27,6 +27,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseCors("AllowSpecificOrigin");
+
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();

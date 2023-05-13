@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Common;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using productCatalougeMicroservice.Models;
 using RestSharp;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -34,8 +37,8 @@ namespace productCatalougeMicroservice.Controllers
             }
         }
 
-        [HttpGet("LoadProducts/{category}")]
-        public IActionResult LoadProducts(string category)
+        [HttpPost("LoadProducts/{category}")]
+        public async Task<List<Product>> LoadProducts(string category)
         {
             string requestUri = "https://amazon-data-scraper124.p.rapidapi.com/search/"+category+"?api_key=393ff3e8406791ceb99f57836935aa52";
 
@@ -43,11 +46,30 @@ namespace productCatalougeMicroservice.Controllers
 
             string jsonString = jsonDoc.RootElement.ToString();
 
-            return Content(jsonString, "application/json");
+            var jsonData = JsonConvert.DeserializeObject<RootObject>(jsonString);
+
+            // Create a list to hold the products
+            List<Product> products = new List<Product>();
+
+            // Iterate through the results and create Product objects
+            foreach (var result in jsonData.results)
+            {
+                Product product = new Product
+                {
+                    Image = result.image,
+                    Name = result.name,
+                    price = result.price_string,
+                    Url = result.url
+                };
+
+                products.Add(product);
+            }
+
+            return products;
         }
 
-        [HttpGet("{url}")]
-        public IActionResult GetProductDetails(string url)
+        [HttpGet("GetProductDetails/{url}")]
+        public ProblemDetails GetProductDetails(string url)
         {
             string id = ExtractProductId(url);
             string requestUri = "https://amazon-data-scraper124.p.rapidapi.com/products/"+id+"?api_key=393ff3e8406791ceb99f57836935aa52";
@@ -56,7 +78,10 @@ namespace productCatalougeMicroservice.Controllers
 
             string jsonString = jsonDoc.RootElement.ToString();
 
-            return Content(jsonString, "application/json");
+            ProblemDetails problemDetails = new ProblemDetails();
+
+
+            return problemDetails;
         }
 
         private string ExtractProductId(String url)

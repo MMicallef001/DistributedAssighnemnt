@@ -8,6 +8,9 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Common;
+using Newtonsoft.Json;
+using static Google.Rpc.Context.AttributeContext.Types;
+using System.Collections.Generic;
 
 namespace ECommerceApp.Controllers
 {
@@ -148,7 +151,7 @@ namespace ECommerceApp.Controllers
             List<ProductCategory> categories = new List<ProductCategory>
             {
                 new ProductCategory { Name = "Laptop" },
-                new ProductCategory { Name = "Headphone" },
+                new ProductCategory { Name = "Headphones" },
                 new ProductCategory { Name = "keyboard" },
                 new ProductCategory { Name = "webcam" },
                 new ProductCategory { Name = "mouse" },
@@ -157,17 +160,70 @@ namespace ECommerceApp.Controllers
             return View(categories);
         }
 
-        [HttpPost]
-        public IActionResult CategoryClicked(string categoryName)
+        [HttpGet]
+        [Authorize]
+        public IActionResult Products(List<Product> productList)
         {
-            // Here, you can handle the clicked category as needed.
-            // For now, just redirect back to the categories page.
+            return View(productList);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> CategoryClickedAsync(string categoryName)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("https://localhost:7074/api/ProductsMicroservice/");
+
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage response = await client.PostAsJsonAsync("LoadProducts/" + categoryName, string.Empty);
+
+                if (response.IsSuccessStatusCode)
+                {
+
+                    List<Product> products = await response.Content.ReadAsAsync<List<Product>>();
+                    return View("Products", products);
+                }
+            }
+
             return RedirectToAction("Categories");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ViewDetails(string Url)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("https://localhost:7074/api/ProductsMicroservice/");
+
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage response = await client.GetAsync("GetProductDetails/" + Url);
+
+                if (response.IsSuccessStatusCode)
+                {
+
+                    string jsonString = await response.Content.ReadAsAsync<string>();
+                    ProductDetail productDetail = new ProductDetail();
+
+                    return View("ViewDetail", productDetail);
+                }
+            }
+
+                return RedirectToAction("OrderConfirmation");
+        }
+        [HttpGet]
+        public IActionResult ViewDetails(ProductDetail ProductDetails)
+        {
+            return View(ProductDetails);
         }
 
 
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+            [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

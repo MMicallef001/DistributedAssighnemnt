@@ -4,15 +4,18 @@
     ViewData["Title"] = "Categories";
 }
 
-<h1>Categories</h1>
+<h1 class="text-center my-4">Categories</h1>
 
 <h4>Select A category</h4>
 
+<div class="d-flex flex-wrap justify-content-center">
+    @foreach (var category in Model)
+    {
+        <form method="post" asp-action="CategoryClicked" class="m-2">
+            <input type="hidden" name="categoryName" value="@category.Name" />
+            <input type="submit" value="@category.Name" class="btn btn-primary" />
+        </form>
 
-@foreach (var category in Model)
-{
-    <form method="post" asp-action="CategoryClicked">
-        <input type="hidden" name="categoryName" value="@category.Name" />
-        <input type="submit" value="@category.Name" />
-    </form>
-}
+
+    }
+</div>
