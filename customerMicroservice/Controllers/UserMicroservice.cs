@@ -1,10 +1,9 @@
-﻿using customerMicroservice.DataAccess;
-using Common.Models;
-using Google.Cloud.Firestore.V1;
-using Microsoft.AspNetCore.Http;
+﻿using Common.Models;
+using customerMicroservice.DataAccess;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
+using System.Security.Claims;
 
 namespace customerMicroservice.Controllers
 {
@@ -20,29 +19,44 @@ namespace customerMicroservice.Controllers
             _context = context;
         }
 
-        [Route("api/UserMicroservice/RegisterUser")]
-        [HttpPost()]
+
+        [HttpPost("RegisterUser")]
         public async Task<IActionResult> RegisterUser(User user)
         {
 
             user.Id = Guid.NewGuid().ToString();
             var check = _context.RegisterUser(user);
 
-            if (check.Equals(true))
+            if (check.Exception == null)
             {
-                return Ok();
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.Name)
+                    // Add other claims as needed.
+                };
+
+                var claimsIdentity = new ClaimsIdentity(
+                    claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var authProperties = new AuthenticationProperties();
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    authProperties);
+
+                return Ok("Registed Succesfully");
             }
 
-            return NoContent();               
-         }
+            return NoContent();
+        }
 
-        [HttpPost()]
-        public async Task<IActionResult> LoginUser(string email, string password)
+        [HttpPost("LoginUser")]
+        public async Task<IActionResult> LoginUser(LogInModel user)
         {
 
+            var check = await _context.Login(user.Email, user.Password);
 
-            var check = await _context.Login(email, password);
-        
             if (check)
             {
                 return Ok();
@@ -51,7 +65,6 @@ namespace customerMicroservice.Controllers
         }
 
 
-        // GET: api/UserDetails/5
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<User>>> GetUserDetails(string id)
         {
@@ -64,7 +77,8 @@ namespace customerMicroservice.Controllers
                 }
                 return Ok(userDetails);
             }
-            catch {
+            catch
+            {
                 return NotFound();
             }
         }

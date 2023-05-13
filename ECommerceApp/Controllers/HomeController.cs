@@ -1,14 +1,20 @@
 ﻿using Common.Models;
 using ECommerceApp.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Net.Http.Headers;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ECommerceApp.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private bool loggedIn =false;
+
 
         public HomeController(ILogger<HomeController> logger)
         {
@@ -17,9 +23,11 @@ namespace ECommerceApp.Controllers
 
         public IActionResult Index()
         {
+            TempData["loggedIn"] = loggedIn;
             return View();
         }
 
+        [Authorize]
         public IActionResult Privacy()
         {
             return View();
@@ -36,22 +44,35 @@ namespace ECommerceApp.Controllers
         {
             using (var client = new HttpClient())
             {
-                // Set the URI of the API you want to call
-                client.BaseAddress = new Uri("http://localhost:7097/api/UserMicroservice/RegisterUser"); // replace with your API base address
-
-                // Define request data format  
+                user.Id = "";
+                client.BaseAddress = new Uri("https://localhost:7097/api/UserMicroservice/"); 
+                  
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
+                HttpResponseMessage response = await client.PostAsJsonAsync("RegisterUser", user);
 
-
-                // Sending request to the RegisterUser web api REST service resource using HttpClient  
-                HttpResponseMessage response = await client.PutAsJsonAsync("UserMicroservice/RegisterUser", user);
-
-                // Checking the response is successful or not which is sent using HttpClient  
                 if (response.IsSuccessStatusCode)
                 {
-                    // Do something with the success scenario
+                    var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.Name),
+                    new Claim(ClaimTypes.Surname, user.SurName),
+                    new Claim(ClaimTypes.Email, user.Email)
+                    // Add other claims as needed.
+                };
+
+                    var claimsIdentity = new ClaimsIdentity(
+                        claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    var authProperties = new AuthenticationProperties();
+
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
+
+                    return RedirectToAction("Index");
                 }
                 else
                 {
@@ -59,10 +80,64 @@ namespace ECommerceApp.Controllers
                 }
             }
 
-            // Finally, returning something to the view
+            return RedirectToAction("Index");
+
+
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(string email, string password)
+        {
+            if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password))
+            {
+                using (var client = new HttpClient())
+                {
+                    var credentials = new { email = email, password = password };
+                    var response = await client.PostAsJsonAsync("https://localhost:7097/api/UserMicroservice/LoginUser/", credentials);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Create a session for the user.
+                        var claims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.Name, email)
+
+                            // Add other claims as needed.
+                        };
+
+                        var claimsIdentity = new ClaimsIdentity(
+                            claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                        var authProperties = new AuthenticationProperties();
+
+                        await HttpContext.SignInAsync(
+                            CookieAuthenticationDefaults.AuthenticationScheme,
+                            new ClaimsPrincipal(claimsIdentity),
+                            authProperties);
+
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        // Log the error or do something
+                    }
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
             return View();
+        }
 
+        [HttpGet]
+        public async Task<IActionResult> Login()
+        {
+            return View();
+        }
 
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

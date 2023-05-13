@@ -32,6 +32,7 @@ namespace customerMicroservice.DataAccess
             QuerySnapshot UsersQuerySnapshot = await usersQuery.GetSnapshotAsync();
 
             DocumentSnapshot documentSnapshot = UsersQuerySnapshot.Documents.FirstOrDefault();
+
             if (documentSnapshot.Exists == false)
             {
                 return false;
@@ -46,6 +47,7 @@ namespace customerMicroservice.DataAccess
                 }
                 return false;
             }
+            return false;
         }
         public async Task<User> GetUserDetails(string id)
         {

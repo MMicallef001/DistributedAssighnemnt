@@ -11,13 +11,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ordersMicroservice", "order
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentMicroservice", "PaymentMicroservice\PaymentMicroservice.csproj", "{E5364F5C-4430-4D07-A58A-795C88D899C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShippingMicroservice", "ShippingMicroservice\ShippingMicroservice.csproj", "{734B8932-29F4-44B1-8407-FF008DB3350D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShippingMicroservice", "ShippingMicroservice\ShippingMicroservice.csproj", "{734B8932-29F4-44B1-8407-FF008DB3350D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationMicroservice", "NotificationMicroservice\NotificationMicroservice.csproj", "{E44970D0-BB80-4DA4-93B4-C4AFBB05CE2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationMicroservice", "NotificationMicroservice\NotificationMicroservice.csproj", "{E44970D0-BB80-4DA4-93B4-C4AFBB05CE2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerceApp", "ECommerceApp\ECommerceApp.csproj", "{B0D95E80-ABE7-4636-8C39-DA7F94383670}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ECommerceApp", "ECommerceApp\ECommerceApp.csproj", "{B0D95E80-ABE7-4636-8C39-DA7F94383670}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{1209206D-4BC5-42D2-B373-725428C54BFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{1209206D-4BC5-42D2-B373-725428C54BFB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

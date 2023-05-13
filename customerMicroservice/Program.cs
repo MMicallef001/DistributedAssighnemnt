@@ -1,5 +1,7 @@
 using customerMicroservice.DataAccess;
+using Google.Api;
 using Google.Cloud.Firestore.V1;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Hosting;
 using static Google.Cloud.Firestore.V1.StructuredQuery.Types;
 
@@ -12,6 +14,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.SameSite = SameSiteMode.None;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.LoginPath = "/Account/Login";
+    });
 
 builder.Services.AddScoped<FirestoreUsersRepo>(provider => new FirestoreUsersRepo(projectId));
 
