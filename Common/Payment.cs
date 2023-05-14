@@ -1,6 +1,6 @@
 ﻿using Google.Cloud.Firestore;
 
-namespace PaymentMicroservice.Models
+namespace Common.Models
 {
     [FirestoreData]
     public class Payment
@@ -15,7 +15,7 @@ namespace PaymentMicroservice.Models
         public string UserId { get; set; }
 
         [FirestoreProperty]
-        public string Amount { get; set; }
+        public double Amount { get; set; }
 
         [FirestoreProperty]
         public string CardNumber { get; set; }

@@ -26,7 +26,7 @@ namespace customerMicroservice.DataAccess
             }
         }
 
-        public async Task<bool> Login(string email, string pword)
+        public async Task<string?> Login(string email, string pword)
         {
             Query usersQuery = db.Collection("Users").WhereEqualTo("Email", email);
             QuerySnapshot UsersQuerySnapshot = await usersQuery.GetSnapshotAsync();
@@ -35,19 +35,24 @@ namespace customerMicroservice.DataAccess
 
             if (documentSnapshot.Exists == false)
             {
-                return false;
+                return null;
             }
             else
             {
-                string passwordFromDb = documentSnapshot.GetValue<string>(new FieldPath("Password")); // Get the password field from 
+                string passwordFromDb = documentSnapshot.GetValue<string>(new FieldPath("Password"));
+
 
                 if (passwordFromDb.Equals(pword))
                 {
-                    return true;
+                    string uid = documentSnapshot.GetValue<string>(new FieldPath("Id"));
+                    if (uid != null)
+                    {
+                        return uid;
+                    }
                 }
-                return false;
+                return null;
             }
-            return false;
+
         }
         public async Task<User> GetUserDetails(string id)
         {

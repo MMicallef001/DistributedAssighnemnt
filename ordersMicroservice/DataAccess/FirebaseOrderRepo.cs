@@ -1,5 +1,5 @@
 ﻿using Google.Cloud.Firestore;
-using ordersMicroservice.Models;
+using Common.Models;
 using System.Collections.Generic;
 
 namespace ordersMicroservice.DataAccess
@@ -60,6 +60,23 @@ namespace ordersMicroservice.DataAccess
             catch
             {
                 return null;
+            }
+        }
+        public async Task<bool> Update(Order o)
+        {
+            Query ordersQuery = db.Collection("Orders").WhereEqualTo("OrderId", o.OrderId);
+            QuerySnapshot ordersQuerySnapshot = await ordersQuery.GetSnapshotAsync();
+
+            DocumentSnapshot documentSnapshot = ordersQuerySnapshot.Documents.FirstOrDefault();
+            if (documentSnapshot.Exists == false)
+            {
+                return false;
+            }
+            else
+            {
+                DocumentReference ordersRef = db.Collection("Orders").Document(documentSnapshot.Id);
+                await ordersRef.SetAsync(o);
+                return true;
             }
         }
     }

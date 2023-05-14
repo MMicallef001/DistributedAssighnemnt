@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ordersMicroservice.DataAccess;
-using ordersMicroservice.Models;
+using Common.Models;
 using System.Text.Json;
 
 namespace ordersMicroservice.Controllers
@@ -18,12 +18,9 @@ namespace ordersMicroservice.Controllers
         }
 
 
-        [HttpPost()]
+        [HttpPost("AddOrder")]
         public async Task<IActionResult> AddOrder(Order order)
         {
-
-            order.OrderId = Guid.NewGuid().ToString();
-
             var check = _context.CreateOrder(order);
 
             if (check.Equals(true))
@@ -44,12 +41,30 @@ namespace ordersMicroservice.Controllers
             return Content(jsonString, "application/json");
         }
 
-        [HttpGet("{orderId}")]
+        [HttpGet("GetOrderDetails/{orderId}")]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrderDetails(string orderId)
         {
             try
             {
                 var orderDetails = await _context.GetOrderDetails(orderId);
+                if (orderDetails == null)
+                {
+                    return NotFound();
+                }
+                return Ok(orderDetails);
+            }
+            catch
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpPost("update")]
+        public async Task<ActionResult<IEnumerable<Order>>> Update(Order o )
+        {
+            try
+            {
+                var orderDetails = await _context.Update(o);
                 if (orderDetails == null)
                 {
                     return NotFound();

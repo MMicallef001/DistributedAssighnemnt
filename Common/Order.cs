@@ -1,6 +1,6 @@
 ﻿using Google.Cloud.Firestore;
 
-namespace ordersMicroservice.Models
+namespace Common.Models
 {
     [FirestoreData]
     public class Order
@@ -24,7 +24,7 @@ namespace ordersMicroservice.Models
         public string image { get; set; }
 
         [FirestoreProperty]
-        public string Price { get; set; }
+        public double Price { get; set; }
 
         [FirestoreProperty]
         public string Status { get; set; }

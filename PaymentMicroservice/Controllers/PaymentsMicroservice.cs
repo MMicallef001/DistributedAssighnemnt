@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PaymentMicroservice.DataAccess;
-using PaymentMicroservice.Models;
+using Common.Models;
 
 namespace PaymentMicroservice.Controllers
 {
@@ -16,14 +16,11 @@ namespace PaymentMicroservice.Controllers
             _context = context;
         }
 
-        [HttpPost()]
+        [HttpPost("AddPayment")]
         public async Task<IActionResult> AddPayment(Payment payment)
         {
 
-            payment.PaymentId = Guid.NewGuid().ToString();
-
-
-            var check = _context.CreatePayment(payment);
+             var check = _context.CreatePayment(payment);
 
             if (check.Equals(true))
             {

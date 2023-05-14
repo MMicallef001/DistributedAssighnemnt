@@ -1,5 +1,7 @@
 ﻿using Google.Cloud.Firestore;
-using PaymentMicroservice.Models;
+using Common.Models;
+
+
 
 namespace PaymentMicroservice.DataAccess
 {

@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using static Google.Rpc.Context.AttributeContext.Types;
 using System.Collections.Generic;
 using System.Web;
+using System.Text.RegularExpressions;
 
 namespace ECommerceApp.Controllers
 {
@@ -49,7 +50,7 @@ namespace ECommerceApp.Controllers
         {
             using (var client = new HttpClient())
             {
-                user.Id = "";
+                user.Id = Guid.NewGuid().ToString();
                 client.BaseAddress = new Uri("https://localhost:7097/api/UserMicroservice/"); 
                   
                 client.DefaultRequestHeaders.Clear();
@@ -63,7 +64,8 @@ namespace ECommerceApp.Controllers
                 {
                     new Claim(ClaimTypes.Name, user.Name),
                     new Claim(ClaimTypes.Surname, user.SurName),
-                    new Claim(ClaimTypes.Email, user.Email)
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id)
                     // Add other claims as needed.
                 };
 
@@ -98,29 +100,35 @@ namespace ECommerceApp.Controllers
                 using (var client = new HttpClient())
                 {
                     var credentials = new { email = email, password = password };
-                    var response = await client.PostAsJsonAsync("https://localhost:7097/api/UserMicroservice/LoginUser/", credentials);
+
+                    client.DefaultRequestHeaders.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    HttpResponseMessage response = await client.PostAsJsonAsync("https://localhost:7097/api/UserMicroservice/LoginUser/", credentials);
+
 
                     if (response.IsSuccessStatusCode)
+                {
+                    string uid = await response.Content.ReadAsAsync<string>();
+                    // Create a session for the user.
+                    var claims = new List<Claim>
                     {
-                        // Create a session for the user.
-                        var claims = new List<Claim>
-                        {
-                            new Claim(ClaimTypes.Name, email)
+                        new Claim(ClaimTypes.Name, email),
+                        new Claim(ClaimTypes.NameIdentifier, uid)
 
-                            // Add other claims as needed.
-                        };
+                        // Add other claims as needed.
+                    };
 
-                        var claimsIdentity = new ClaimsIdentity(
-                            claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var claimsIdentity = new ClaimsIdentity(
+                        claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                        var authProperties = new AuthenticationProperties();
+                    var authProperties = new AuthenticationProperties();
 
-                        await HttpContext.SignInAsync(
-                            CookieAuthenticationDefaults.AuthenticationScheme,
-                            new ClaimsPrincipal(claimsIdentity),
-                            authProperties);
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
 
-                        return RedirectToAction("Categories");
+                    return RedirectToAction("Categories");
                     }
                     else
                     {
@@ -229,6 +237,8 @@ namespace ECommerceApp.Controllers
         {
             using (var client = new HttpClient())
             {
+                url = HttpUtility.UrlEncode(url);
+
 
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -238,13 +248,140 @@ namespace ECommerceApp.Controllers
                 if (response.IsSuccessStatusCode)
                 {
 
+
                     ProductDetail productDetail = await response.Content.ReadAsAsync<ProductDetail>();
 
-                    return View("ViewDetails", productDetail);
+                    string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                    Order o = new Order();
+
+                    
+                    o.OrderId = Guid.NewGuid().ToString();
+                    o.ProductId = productDetail.Id;
+                    o.UserId = userId;
+                    o.ProductUrl = url;
+                    o.ProductName = productDetail.ProductName;
+                    o.image = productDetail.Image;
+
+                    
+                   
+                    if(!(productDetail.ShippingPrice.ToLower().Equals("free")))
+                    {
+                        string stringPrice = Regex.Replace(productDetail.ShippingPrice, "\\$", "");
+                        double shipping = double.Parse(stringPrice);
+
+                        stringPrice = Regex.Replace(productDetail.Pricing, "\\$", "");
+                        double price = double.Parse(stringPrice);
+
+                        double totalPrice = shipping + price;
+                        o.Price = totalPrice;
+
+
+                    }
+                    else
+                    {
+                        string stringPrice = Regex.Replace(productDetail.Pricing, "\\$", "");
+                        o.Price = double.Parse(stringPrice);
+                    }
+
+                    o.Status = "Order Is Waiting Payment";
+                    o.Paid = false;
+
+                    using (var orderClient = new HttpClient())
+                    {
+                        orderClient.BaseAddress = new Uri("https://localhost:7202/api/OrdersMicroservice/");
+
+                        orderClient.DefaultRequestHeaders.Clear();
+                        orderClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                        HttpResponseMessage OrderedResponse = await orderClient.PostAsJsonAsync("AddOrder", o);
+
+                        if (OrderedResponse.IsSuccessStatusCode)
+                        {
+                            return RedirectToAction("Payment", new { price = o.Price, orderId = o.OrderId });
+                        }
+                    }
+                        
+                }
+            }
+            //send to pay
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public IActionResult Payment(double price, string orderId)
+        {
+            PaymentViewModel pvm = new PaymentViewModel
+            {
+                Price = price,
+                OrderId = orderId
+            };
+
+            return View(pvm);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Payment(Payment payment, string OrderId, double Price)
+        {
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            Payment newPayment = new Payment();
+
+            newPayment.PaymentId = Guid.NewGuid().ToString();
+
+            newPayment.OrderId = OrderId;
+            newPayment.UserId = userId;
+            newPayment.Amount = Price;
+            newPayment.CardNumber = payment.CardNumber;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("https://localhost:7153/api/PaymentsMicroservice/");
+
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage Response = await client.PostAsJsonAsync("AddPayment", newPayment);
+
+                if (Response.IsSuccessStatusCode)
+                {
+                    using (var orderClient = new HttpClient())
+                    {
+                        orderClient.DefaultRequestHeaders.Clear();
+                        orderClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                        HttpResponseMessage OrderedResponse = await orderClient.GetAsync("https://localhost:7202/api/OrdersMicroservice/GetOrderDetails/" + OrderId);
+
+                        if (OrderedResponse.IsSuccessStatusCode)
+                        {
+
+                            Order orderDetails = await OrderedResponse.Content.ReadAsAsync<Order>();
+
+                            orderDetails.Paid = true;
+                            orderDetails.Status = "Order Has been Paid";
+
+                            using (var updateOrderClient = new HttpClient())
+                            {
+                                updateOrderClient.DefaultRequestHeaders.Clear();
+                                updateOrderClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                                HttpResponseMessage UpdatedOrderedResponse = await updateOrderClient.PostAsJsonAsync("https://localhost:7202/api/OrdersMicroservice/update/", orderDetails);
+                                if (UpdatedOrderedResponse.IsSuccessStatusCode)
+                                {
+                                    return View("index");
+                                }
+
+                            }
+                                
+                            
+                        }
+                    }
                 }
             }
 
-            return RedirectToAction("Index");
+
+            return View();
         }
 
 

@@ -23,8 +23,6 @@ namespace customerMicroservice.Controllers
         [HttpPost("RegisterUser")]
         public async Task<IActionResult> RegisterUser(User user)
         {
-
-            user.Id = Guid.NewGuid().ToString();
             var check = _context.RegisterUser(user);
 
             if (check.Exception == null)
@@ -52,16 +50,16 @@ namespace customerMicroservice.Controllers
         }
 
         [HttpPost("LoginUser")]
-        public async Task<IActionResult> LoginUser(LogInModel user)
+        public async Task<String> LoginUser(LogInModel user)
         {
 
             var check = await _context.Login(user.Email, user.Password);
 
-            if (check)
+            if (check!=null)
             {
-                return Ok();
+                return check.ToString();
             }
-            return Problem("login Failed");
+            return "login Failed";
         }
 
 
