@@ -1,0 +1,67 @@
+﻿@model IEnumerable<Common.Models.Order>
+
+@{
+    ViewData["Title"] = "ViewAllOrthers";
+}
+
+<h1>ViewAllOrthers</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.image)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Paid)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductName)
+            </td>
+            <td>
+                <img src="@item.image" alt="Product Image" class="product-image" />
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Price)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Paid)
+            </td>
+            <td>
+                <form method="get" asp-action="GetOrderDetails" class="m-2">
+                    <input type="hidden" name="OrderId" value="@item.OrderId" />
+                    <input type="submit" value="Order Details" class="btn btn-primary" />
+                </form>
+
+                @if(item.Paid == true){
+                    <form method="get" asp-action="GetPaymentsDetails" class="m-2">
+                        <input type="hidden" name="OrderId" value="@item.OrderId" />
+                        <input type="submit" value="Payment Details" class="btn btn-primary" />
+                    </form>
+                }
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

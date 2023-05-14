@@ -1,0 +1,38 @@
+﻿@model IEnumerable<Common.Models.Shipment>
+
+@{
+    ViewData["Title"] = "GetShipments";
+}
+
+<h1>GetShipments</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.OrderId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.OrderId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                    <form method="get" asp-action="UpdateShipment" class="m-2">
+                    <input type="hidden" name="OrderId" value="@item.OrderId" />
+                    <input type="submit" value="Update Shipment" class="btn btn-primary" />
+                </form>
+    </tr>
+}
+    </tbody>
+</table>

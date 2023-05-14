@@ -13,6 +13,8 @@ using static Google.Rpc.Context.AttributeContext.Types;
 using System.Collections.Generic;
 using System.Web;
 using System.Text.RegularExpressions;
+using System.Net.Http;
+using System.Security.Policy;
 
 namespace ECommerceApp.Controllers
 {
@@ -362,7 +364,7 @@ namespace ECommerceApp.Controllers
                             Order orderDetails = await OrderedResponse.Content.ReadAsAsync<Order>();
 
                             orderDetails.Paid = true;
-                            orderDetails.Status = "Order Has been Paid";
+                            orderDetails.Status = "Order received not yet dispatched";
                             orderDetails.PaymentId = PaymentId;
 
                             using (var updateOrderClient = new HttpClient())
@@ -373,18 +375,178 @@ namespace ECommerceApp.Controllers
                                 HttpResponseMessage UpdatedOrderedResponse = await updateOrderClient.PostAsJsonAsync("https://localhost:7202/api/OrdersMicroservice/update/", orderDetails);
                                 if (UpdatedOrderedResponse.IsSuccessStatusCode)
                                 {
-                                    return View("index");
+                                    Shipment s = new Shipment();
+                                    s.Status = "ordered received not yet dispatched";
+                                    s.OrderId = OrderId;
+                                    
+                                    using (var ShipmentClient = new HttpClient())
+                                    {
+                                        ShipmentClient.DefaultRequestHeaders.Clear();
+                                        ShipmentClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                                        HttpResponseMessage response = await ShipmentClient.PostAsJsonAsync("https://localhost:7293/api/ShippingMicroservice/CreateShipment/",s);
+
+                                        if (response.IsSuccessStatusCode)
+                                        {
+                                            return View("index");
+                                        }
+
+                                    }
+                                    
                                 }
 
-                            }
-                                
-                            
+                            }                            
                         }
                     }
                 }
             }
             return View("index");
         }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> ViewAllOrthers()
+        {
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage Response = await client.GetAsync("https://localhost:7202/api/OrdersMicroservice/user/" + userId);
+                if (Response.IsSuccessStatusCode)
+                {
+                    List<Order> orders = await Response.Content.ReadAsAsync<List<Order>>();
+                    return View("ViewAllOrthers", orders);
+                }
+                
+            }
+            return View("index");
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetOrderDetails(string OrderId)
+        {
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            using (var orderClient = new HttpClient())
+            {
+                orderClient.DefaultRequestHeaders.Clear();
+                orderClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage OrderedResponse = await orderClient.GetAsync("https://localhost:7202/api/OrdersMicroservice/GetOrderDetails/" + OrderId);
+
+                if (OrderedResponse.IsSuccessStatusCode)
+                {
+
+                    Order orderDetails = await OrderedResponse.Content.ReadAsAsync<Order>();
+
+                    orderDetails.ProductUrl = HttpUtility.UrlDecode(orderDetails.ProductUrl);
+
+                    return View("GetOrderDetails", orderDetails);
+                }
+
+            }
+            return View("index");
+        }
+
+
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetPaymentsDetails(string OrderId)
+        {
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            using (var orderClient = new HttpClient())
+            {
+                orderClient.DefaultRequestHeaders.Clear();
+                orderClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage OrderedResponse = await orderClient.GetAsync("https://localhost:7153/api/PaymentsMicroservice/GetPaymentDetails/" + OrderId);
+
+                if (OrderedResponse.IsSuccessStatusCode)
+                {
+
+                    Payment paymentDetails = await OrderedResponse.Content.ReadAsAsync<Payment>();
+
+                   
+
+                    return View("GetPaymentsDetails", paymentDetails);
+                }
+
+            }
+            return View("index");
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetShipments()
+        {
+
+
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage response = await client.GetAsync("https://localhost:7293/api/ShippingMicroservice/allShipments/");
+
+                if (response.IsSuccessStatusCode)
+                {
+
+                    List<Shipment> shipments = await response.Content.ReadAsAsync<List<Shipment>>();
+
+
+
+                    return View("GetShipments", shipments);
+                }
+
+            }
+            return View("index");
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> UpdateShipment(Shipment s)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage UpdatedOrderedResponse = await client.PostAsJsonAsync("https://localhost:7293/api/ShippingMicroservice/update/", s);
+                if (UpdatedOrderedResponse.IsSuccessStatusCode)
+                {
+                    return View("index");
+                }
+            }
+            return View("Index");
+
+        }
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> UpdateShipment(string orderId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage response = await client.PostAsJsonAsync("https://localhost:7293/api/ShippingMicroservice/GetShipmentDetails/", orderId);
+                if (response.IsSuccessStatusCode)
+                {
+                    Shipment shipment = await response.Content.ReadAsAsync<Shipment>();
+                    return View("UpdateShipment", shipment);
+                }
+            }
+            return View("index");
+
+
+        }
+
         //shipping and notifications
 
 

@@ -30,7 +30,7 @@ namespace PaymentMicroservice.Controllers
             return NoContent();
         }
 
-        [HttpGet("{orderId}")]
+        [HttpGet("GetPaymentDetails/{orderId}")]
         public async Task<ActionResult<IEnumerable<Payment>>> GetPaymentDetails(string orderId)
         {
             try
