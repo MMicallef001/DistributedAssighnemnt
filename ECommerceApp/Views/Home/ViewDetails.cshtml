@@ -1,0 +1,29 @@
+﻿@model Common.Models.ProductDetail
+
+@{
+    ViewData["Title"] = "ViewDetails";
+}
+
+<h1>ViewDetails</h1>
+
+<div>
+    <img src="@Model.Image" alt="@Model.ProductName" style="width:300px;height:300px;">
+</div>
+
+<div>
+    <h3>Brand: @Model.Brand</h3>
+    <p>Price: @Model.Pricing</p>
+    <p>Shipping Price: @Model.ShippingPrice</p>
+</div>
+
+<div>
+    <form method="post" asp-action="Order" class="m-2">
+        <input type="hidden" name="Url" value="@Model.EncodedUrl" />
+        <input type="submit" value="Order" class="btn btn-primary" />
+    </form>
+</div>
+
+<div>
+    <h3>Description</h3>
+    <p>@Model.FullDescription</p>
+</div>

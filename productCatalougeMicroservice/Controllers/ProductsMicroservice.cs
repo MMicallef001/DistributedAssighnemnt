@@ -1,11 +1,14 @@
 ﻿using Common;
+using Common.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using productCatalougeMicroservice.Models;
 using RestSharp;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Web;
 
 namespace productCatalougeMicroservice.Controllers
 {
@@ -68,28 +71,47 @@ namespace productCatalougeMicroservice.Controllers
             return products;
         }
 
-        [HttpGet("GetProductDetails/{url}")]
-        public ProblemDetails GetProductDetails(string url)
+        [HttpGet("{url}")]
+        public ProductDetail GetProductDetails(string url)
         {
             string id = ExtractProductId(url);
+
+            if (string.IsNullOrEmpty(id))
+            {
+                return null;
+            }
+
             string requestUri = "https://amazon-data-scraper124.p.rapidapi.com/products/"+id+"?api_key=393ff3e8406791ceb99f57836935aa52";
 
             JsonDocument jsonDoc = GetResponse(requestUri).Result;
 
             string jsonString = jsonDoc.RootElement.ToString();
 
-            ProblemDetails problemDetails = new ProblemDetails();
+            JObject jsonObj = JObject.Parse(jsonString);
 
+            ProductDetail productDetails = new ProductDetail
+            {
+                Id= id,
+                Brand = (string)jsonObj["brand"],
+                Pricing = (string)jsonObj["pricing"],
+                ProductName = (string)jsonObj["name"],
+                FullDescription = (string)jsonObj["full_description"],
+                ShippingPrice = (string)jsonObj["shipping_price"],
+                EncodedUrl = url,
+                Image = (string)jsonObj["images"][0] 
+            };
 
-            return problemDetails;
+            return productDetails;
         }
 
         private string ExtractProductId(String url)
         {
             string pattern = @"/dp/(\w+)/";
 
+            string encodedUrl = HttpUtility.UrlDecode(url);
+
             Regex regex = new Regex(pattern);
-            Match match = regex.Match(url);
+            Match match = regex.Match(encodedUrl);
 
             if (match.Success)
             {

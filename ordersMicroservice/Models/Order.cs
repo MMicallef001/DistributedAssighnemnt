@@ -15,6 +15,15 @@ namespace ordersMicroservice.Models
         public string UserId { get; set; }
 
         [FirestoreProperty]
+        public string ProductUrl { get; set; }
+
+        [FirestoreProperty]
+        public string ProductName { get; set; }
+
+        [FirestoreProperty]
+        public string image { get; set; }
+
+        [FirestoreProperty]
         public string Price { get; set; }
 
         [FirestoreProperty]

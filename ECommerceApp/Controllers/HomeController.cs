@@ -11,6 +11,7 @@ using Common;
 using Newtonsoft.Json;
 using static Google.Rpc.Context.AttributeContext.Types;
 using System.Collections.Generic;
+using System.Web;
 
 namespace ECommerceApp.Controllers
 {
@@ -192,28 +193,29 @@ namespace ECommerceApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ViewDetails(string Url)
+        public async Task<IActionResult> ViewDetails(string url)
         {
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:7074/api/ProductsMicroservice/");
+                //client.BaseAddress = new Uri("https://localhost:7074/api/ProductsMicroservice/");
+
+                string encodedUrl = HttpUtility.UrlEncode(url);
 
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage response = await client.GetAsync("GetProductDetails/" + Url);
+                HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + encodedUrl);
 
                 if (response.IsSuccessStatusCode)
                 {
 
-                    string jsonString = await response.Content.ReadAsAsync<string>();
-                    ProductDetail productDetail = new ProductDetail();
+                    ProductDetail productDetail = await response.Content.ReadAsAsync<ProductDetail>();
 
-                    return View("ViewDetail", productDetail);
+                    return View("ViewDetails", productDetail);
                 }
             }
 
-                return RedirectToAction("OrderConfirmation");
+            return RedirectToAction("Index");
         }
         [HttpGet]
         public IActionResult ViewDetails(ProductDetail ProductDetails)
@@ -222,8 +224,32 @@ namespace ECommerceApp.Controllers
         }
 
 
+        [HttpPost]
+        public async Task<IActionResult> Order(string url)
+        {
+            using (var client = new HttpClient())
+            {
 
-            [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + url);
+
+                if (response.IsSuccessStatusCode)
+                {
+
+                    ProductDetail productDetail = await response.Content.ReadAsAsync<ProductDetail>();
+
+                    return View("ViewDetails", productDetail);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
+
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
