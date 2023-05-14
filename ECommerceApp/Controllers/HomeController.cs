@@ -262,6 +262,7 @@ namespace ECommerceApp.Controllers
                     o.ProductUrl = url;
                     o.ProductName = productDetail.ProductName;
                     o.image = productDetail.Image;
+                    o.PaymentId = "";
 
                     
                    
@@ -328,7 +329,9 @@ namespace ECommerceApp.Controllers
 
             Payment newPayment = new Payment();
 
-            newPayment.PaymentId = Guid.NewGuid().ToString();
+            string PaymentId = Guid.NewGuid().ToString();
+
+            newPayment.PaymentId = PaymentId;
 
             newPayment.OrderId = OrderId;
             newPayment.UserId = userId;
@@ -360,6 +363,7 @@ namespace ECommerceApp.Controllers
 
                             orderDetails.Paid = true;
                             orderDetails.Status = "Order Has been Paid";
+                            orderDetails.PaymentId = PaymentId;
 
                             using (var updateOrderClient = new HttpClient())
                             {
@@ -379,11 +383,9 @@ namespace ECommerceApp.Controllers
                     }
                 }
             }
-
-
-            return View();
+            return View("index");
         }
-
+        //shipping and notifications
 
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

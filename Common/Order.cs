@@ -10,6 +10,8 @@ namespace Common.Models
 
         [FirestoreProperty]
         public string ProductId { get; set; }
+        [FirestoreProperty]
+        public string PaymentId { get; set; }
 
         [FirestoreProperty]
         public string UserId { get; set; }
