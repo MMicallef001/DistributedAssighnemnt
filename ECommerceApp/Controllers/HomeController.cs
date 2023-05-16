@@ -177,7 +177,11 @@ namespace ECommerceApp.Controllers
         {
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:7074/api/ProductsMicroservice/");
+                client.BaseAddress = new Uri("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/");
+                
+                //client.BaseAddress = new Uri("https://localhost:7074/api/ProductsMicroservice/");
+
+            
 
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -201,13 +205,20 @@ namespace ECommerceApp.Controllers
             using (var client = new HttpClient())
             {
                 //client.BaseAddress = new Uri("https://localhost:7074/api/ProductsMicroservice/");
+                client.BaseAddress = new Uri("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/");
+
+
+
+            
 
                 string encodedUrl = HttpUtility.UrlEncode(url);
 
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + encodedUrl);
+                HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + encodedUrl);
+                //HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + encodedUrl);
+
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -238,7 +249,10 @@ namespace ECommerceApp.Controllers
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + url);
+
+                HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + url);
+                //HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + url);
+
 
 
                 if (response.IsSuccessStatusCode)
@@ -336,6 +350,10 @@ namespace ECommerceApp.Controllers
             newPayment.UserId = userId;
             newPayment.Amount = Price;
             newPayment.CardNumber = payment.CardNumber;
+            newPayment.Address = payment.Address;
+
+
+            //pub sub 
 
             using (var client = new HttpClient())
             {

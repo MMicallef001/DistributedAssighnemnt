@@ -1,6 +1,6 @@
-﻿using Google.Cloud.Firestore;
+using Google.Cloud.Firestore;
 
-namespace Common.Models
+namespace PubSubFunction
 {
     [FirestoreData]
     public class Payment
