@@ -4,19 +4,44 @@
     ViewData["Title"] = "UpdateShipment";
 }
 
-<h1>UpdateShipment</h1>
+<style>
+    .form-group {
+        margin-bottom: 20px;
+    }
 
-<h4>Shipment</h4>
+    .btn-primary {
+        margin-top: 10px;
+    }
+</style>
+
+<h1>Update Shipment</h1>
+
 <hr />
+
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <form asp-action="UpdateShipment">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @{
+                var options = new[]
+                {
+            new SelectListItem { Value = "Ordered Received Not Yet Dispatched", Text = "Ordered Received Not Yet Dispatched" },
+            new SelectListItem { Value = "Order Dispatched", Text = "Order Dispatched" },
+            new SelectListItem { Value = "Order Delivered and Received", Text = "Order Delivered and Received" }
+                };
+            }
+
             <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
+                <label asp-for="Status" class="control-label">Status</label>
+                @Html.DropDownList("status", options, "Select an option", new { @class = "form-control" })
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
+
+            <div class="form-group">
+                <input asp-for="OrderId" type="hidden" class="form-control" />
+            </div>
+
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
@@ -27,4 +52,3 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
-

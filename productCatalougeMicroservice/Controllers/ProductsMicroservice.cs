@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using productCatalougeMicroservice.Models;
-using RestSharp;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;

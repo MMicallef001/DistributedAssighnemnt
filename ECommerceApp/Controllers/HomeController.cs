@@ -53,8 +53,12 @@ namespace ECommerceApp.Controllers
             using (var client = new HttpClient())
             {
                 user.Id = Guid.NewGuid().ToString();
-                client.BaseAddress = new Uri("https://localhost:7097/api/UserMicroservice/"); 
-                  
+                client.BaseAddress = new Uri("https://customerapi-pqkchsrqxa-uc.a.run.app/api/UserMicroservice/");
+                //client.BaseAddress = new Uri("https://localhost:7097/api/UserMicroservice/");
+
+
+
+
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -68,7 +72,7 @@ namespace ECommerceApp.Controllers
                     new Claim(ClaimTypes.Surname, user.SurName),
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.NameIdentifier, user.Id)
-                    // Add other claims as needed.
+                    
                 };
 
                     var claimsIdentity = new ClaimsIdentity(
@@ -82,10 +86,6 @@ namespace ECommerceApp.Controllers
                         authProperties);
 
                     return RedirectToAction("Categories");
-                }
-                else
-                {
-                    // Do something in case of error
                 }
             }
 
@@ -105,19 +105,18 @@ namespace ECommerceApp.Controllers
 
                     client.DefaultRequestHeaders.Clear();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    HttpResponseMessage response = await client.PostAsJsonAsync("https://localhost:7097/api/UserMicroservice/LoginUser/", credentials);
+                    HttpResponseMessage response = await client.PostAsJsonAsync("https://customerapi-pqkchsrqxa-uc.a.run.app/api/UserMicroservice/LoginUser/", credentials);
+                    //HttpResponseMessage response = await client.PostAsJsonAsync("https://localhost:7097/api/UserMicroservice/LoginUser/", credentials);
 
 
                     if (response.IsSuccessStatusCode)
                 {
                     string uid = await response.Content.ReadAsAsync<string>();
-                    // Create a session for the user.
+
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, email),
                         new Claim(ClaimTypes.NameIdentifier, uid)
-
-                        // Add other claims as needed.
                     };
 
                     var claimsIdentity = new ClaimsIdentity(
@@ -132,14 +131,8 @@ namespace ECommerceApp.Controllers
 
                     return RedirectToAction("Categories");
                     }
-                    else
-                    {
-                        // Log the error or do something
-                    }
                 }
             }
-
-            // If we got this far, something failed, redisplay form
             return View();
         }
 
@@ -247,6 +240,7 @@ namespace ECommerceApp.Controllers
 
                 HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + url);
 
+
                 if (response.IsSuccessStatusCode)
                 {
 
@@ -292,7 +286,10 @@ namespace ECommerceApp.Controllers
 
                     using (var orderClient = new HttpClient())
                     {
-                        orderClient.BaseAddress = new Uri("https://localhost:7202/api/OrdersMicroservice/");
+                    
+                        orderClient.BaseAddress = new Uri("https://ordersmicroservice-pqkchsrqxa-uc.a.run.app/api/OrdersMicroservice/");
+                        //orderClient.BaseAddress = new Uri("https://localhost:7202/api/OrdersMicroservice/");
+
 
                         orderClient.DefaultRequestHeaders.Clear();
                         orderClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -342,7 +339,9 @@ namespace ECommerceApp.Controllers
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:7153/api/PaymentsMicroservice/");
+                client.BaseAddress = new Uri("https://paymentmicroservice-pqkchsrqxa-uc.a.run.app/api/PaymentsMicroservice/");
+                //client.BaseAddress = new Uri("https://localhost:7153/api/PaymentsMicroservice/");
+
 
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -356,7 +355,9 @@ namespace ECommerceApp.Controllers
                         orderClient.DefaultRequestHeaders.Clear();
                         orderClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                        HttpResponseMessage OrderedResponse = await orderClient.GetAsync("https://localhost:7202/api/OrdersMicroservice/GetOrderDetails/" + OrderId);
+                    
+                        HttpResponseMessage OrderedResponse = await orderClient.GetAsync("https://ordersmicroservice-pqkchsrqxa-uc.a.run.app/api/OrdersMicroservice/GetOrderDetails/" + OrderId);
+                        //HttpResponseMessage OrderedResponse = await orderClient.GetAsync("https://localhost:7202/api/OrdersMicroservice/GetOrderDetails/" + OrderId);
 
                         if (OrderedResponse.IsSuccessStatusCode)
                         {
@@ -372,7 +373,9 @@ namespace ECommerceApp.Controllers
                                 updateOrderClient.DefaultRequestHeaders.Clear();
                                 updateOrderClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                                HttpResponseMessage UpdatedOrderedResponse = await updateOrderClient.PostAsJsonAsync("https://localhost:7202/api/OrdersMicroservice/update/", orderDetails);
+                            
+                                HttpResponseMessage UpdatedOrderedResponse = await updateOrderClient.PostAsJsonAsync("https://ordersmicroservice-pqkchsrqxa-uc.a.run.app/api/OrdersMicroservice/update/", orderDetails);
+                                //HttpResponseMessage UpdatedOrderedResponse = await updateOrderClient.PostAsJsonAsync("https://localhost:7202/api/OrdersMicroservice/update/", orderDetails);
                                 if (UpdatedOrderedResponse.IsSuccessStatusCode)
                                 {
                                     Shipment s = new Shipment();
@@ -384,7 +387,11 @@ namespace ECommerceApp.Controllers
                                         ShipmentClient.DefaultRequestHeaders.Clear();
                                         ShipmentClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                                        HttpResponseMessage response = await ShipmentClient.PostAsJsonAsync("https://localhost:7293/api/ShippingMicroservice/CreateShipment/",s);
+                                   
+
+                                        HttpResponseMessage response = await ShipmentClient.PostAsJsonAsync("https://shippingmicroservice-pqkchsrqxa-uc.a.run.app/api/ShippingMicroservice/AddShipment/", s);
+                                        //HttpResponseMessage response = await ShipmentClient.PostAsJsonAsync("https://localhost:7293/api/ShippingMicroservice/AddShipment/", s);
+
 
                                         if (response.IsSuccessStatusCode)
                                         {
@@ -413,8 +420,11 @@ namespace ECommerceApp.Controllers
             {
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            
 
-                HttpResponseMessage Response = await client.GetAsync("https://localhost:7202/api/OrdersMicroservice/user/" + userId);
+                HttpResponseMessage Response = await client.GetAsync("https://ordersmicroservice-pqkchsrqxa-uc.a.run.app/api/OrdersMicroservice/user/" + userId);
+                //HttpResponseMessage Response = await client.GetAsync("https://localhost:7202/api/OrdersMicroservice/user/" + userId);
+
                 if (Response.IsSuccessStatusCode)
                 {
                     List<Order> orders = await Response.Content.ReadAsAsync<List<Order>>();
@@ -436,7 +446,9 @@ namespace ECommerceApp.Controllers
                 orderClient.DefaultRequestHeaders.Clear();
                 orderClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage OrderedResponse = await orderClient.GetAsync("https://localhost:7202/api/OrdersMicroservice/GetOrderDetails/" + OrderId);
+                HttpResponseMessage OrderedResponse = await orderClient.GetAsync("https://ordersmicroservice-pqkchsrqxa-uc.a.run.app/api/OrdersMicroservice/GetOrderDetails/" + OrderId);
+                //tpResponseMessage OrderedResponse = await orderClient.GetAsync("https://localhost:7202/api/OrdersMicroservice/GetOrderDetails/" + OrderId);
+
 
                 if (OrderedResponse.IsSuccessStatusCode)
                 {
@@ -465,7 +477,9 @@ namespace ECommerceApp.Controllers
                 orderClient.DefaultRequestHeaders.Clear();
                 orderClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage OrderedResponse = await orderClient.GetAsync("https://localhost:7153/api/PaymentsMicroservice/GetPaymentDetails/" + OrderId);
+                HttpResponseMessage OrderedResponse = await orderClient.GetAsync("https://paymentmicroservice-pqkchsrqxa-uc.a.run.app/api/PaymentsMicroservice/GetPaymentDetails/" + OrderId);
+                //HttpResponseMessage OrderedResponse = await orderClient.GetAsync("https://localhost:7153/api/PaymentsMicroservice/GetPaymentDetails/" + OrderId);
+
 
                 if (OrderedResponse.IsSuccessStatusCode)
                 {
@@ -492,7 +506,11 @@ namespace ECommerceApp.Controllers
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage response = await client.GetAsync("https://localhost:7293/api/ShippingMicroservice/allShipments/");
+                HttpResponseMessage response = await client.GetAsync("https://shippingmicroservice-pqkchsrqxa-uc.a.run.app/api/ShippingMicroservice/allShipments/");
+                //HttpResponseMessage response = await client.GetAsync("https://localhost:7293/api/ShippingMicroservice/allShipments/");
+
+
+            
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -517,7 +535,10 @@ namespace ECommerceApp.Controllers
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage UpdatedOrderedResponse = await client.PostAsJsonAsync("https://localhost:7293/api/ShippingMicroservice/update/", s);
+
+                HttpResponseMessage UpdatedOrderedResponse = await client.PostAsJsonAsync("https://shippingmicroservice-pqkchsrqxa-uc.a.run.app/api/ShippingMicroservice/update/", s);
+                //HttpResponseMessage UpdatedOrderedResponse = await client.PostAsJsonAsync("https://localhost:7293/api/ShippingMicroservice/update/", s);
+
                 if (UpdatedOrderedResponse.IsSuccessStatusCode)
                 {
                     return View("index");
@@ -535,7 +556,10 @@ namespace ECommerceApp.Controllers
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage response = await client.PostAsJsonAsync("https://localhost:7293/api/ShippingMicroservice/GetShipmentDetails/", orderId);
+
+                HttpResponseMessage response = await client.GetAsync("https://shippingmicroservice-pqkchsrqxa-uc.a.run.app/api/ShippingMicroservice/GetShipmentDetails/" + orderId);
+                //HttpResponseMessage response = await client.GetAsync("https://localhost:7293/api/ShippingMicroservice/GetShipmentDetails/" + orderId);
+
                 if (response.IsSuccessStatusCode)
                 {
                     Shipment shipment = await response.Content.ReadAsAsync<Shipment>();
@@ -546,6 +570,8 @@ namespace ECommerceApp.Controllers
 
 
         }
+
+
 
         //shipping and notifications
 

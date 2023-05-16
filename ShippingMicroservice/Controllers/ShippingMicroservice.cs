@@ -18,7 +18,7 @@ namespace ShippingMicroservice.Controllers
 
 
         [HttpPost("AddShipment")]
-        public async Task<IActionResult> AddOrder(Shipment shipment)
+        public async Task<IActionResult> AddShipment(Shipment shipment)
         {
             var check = _context.CreateShipment(shipment);
 

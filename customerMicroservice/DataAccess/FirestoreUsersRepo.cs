@@ -1,7 +1,5 @@
 ﻿using Common.Models;
 using Google.Cloud.Firestore;
-using System.Collections.Generic;
-using System.Data.Entity;
 
 namespace customerMicroservice.DataAccess
 {
