@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace Common
 {
-    internal class transferingModel
+    public class transferingModel
     {
+        public string UserId { get; set; }
+        public string ProductUrl { get; set; }
+        public string Addess { get; set; }
+        public string CardNumber { get; set; }
+
+
     }
 }

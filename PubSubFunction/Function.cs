@@ -10,26 +10,40 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 
 namespace PubSubFunction
 {
     public class Function : ICloudEventFunction<MessagePublishedData>
     {
+        private readonly ILogger<Function> _logger;
+
+        public Function(ILogger<Function> logger) => _logger = logger;
 
         public async Task HandleAsync(CloudEvent cloudEvent, MessagePublishedData data, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("PubSub Function started");
             var jsonFromMessage = data.Message?.TextData;
 
-            dynamic receivedData = JsonConvert.DeserializeObject(jsonFromMessage);
+            //dynamic receivedData = JsonConvert.DeserializeObject(jsonFromMessage);
 
-            model model = JsonConvert.DeserializeObject<model>(receivedData.model.ToString());
+             _logger.LogInformation($"Data Received is {jsonFromMessage}");
+
+            model model = JsonConvert.DeserializeObject<model>(jsonFromMessage);
 
             ////////////////////////////////////////////////////////////////////
 
+            
+             _logger.LogInformation($"Before using");
+            _logger.LogInformation($"Data Received is {model.CardNumber}");
+            _logger.LogInformation($"Data Received is {model.ProductUrl}");
+
+            _logger.LogInformation($"Data Received is {model.UserID}");
+            _logger.LogInformation($"Data Received is {model.Addess}");
 
 
-            using (var client = new HttpClient())
-                            {
+
+            using (var client = new HttpClient()){
                 string url = HttpUtility.UrlEncode(model.ProductUrl);
 
 
@@ -40,7 +54,7 @@ namespace PubSubFunction
                 HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + url);
                 //HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + url);
 
-
+                 _logger.LogInformation($"Data Received is {response.IsSuccessStatusCode}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -60,7 +74,7 @@ namespace PubSubFunction
                     o.image = productDetail.Image;
                     o.PaymentId = "";
 
-                    
+                    _logger.LogInformation($"order object created{o}");
                    
                     if(!(productDetail.ShippingPrice.ToLower().Equals("free")))
                     {
@@ -72,13 +86,16 @@ namespace PubSubFunction
 
                         double totalPrice = shipping + price;
                         o.Price = totalPrice;
-
+                        
+                        _logger.LogInformation($"price converted");
 
                     }
                     else
                     {
                         string stringPrice = Regex.Replace(productDetail.Pricing, "\\$", "");
                         o.Price = double.Parse(stringPrice);
+                        _logger.LogInformation($"price converted");
+
                     }
 
                     o.Status = "Order Is Waiting Payment";
@@ -90,6 +107,8 @@ namespace PubSubFunction
 
                     using (var orderClient = new HttpClient())
                     {
+                        _logger.LogInformation($"adding order");
+
                     
                         orderClient.BaseAddress = new Uri("https://ordersmicroservice-pqkchsrqxa-uc.a.run.app/api/OrdersMicroservice/");
                         //orderClient.BaseAddress = new Uri("https://localhost:7202/api/OrdersMicroservice/");
@@ -114,7 +133,7 @@ namespace PubSubFunction
                             newPayment.UserId = userId;
                             newPayment.Amount = o.Price;
                             newPayment.CardNumber = model.CardNumber;
-                            newPayment.Address = model.ShippingAddress;
+                            newPayment.Address = model.Addess;
 
 
                             using (var paymentclient = new HttpClient())
@@ -148,7 +167,7 @@ namespace PubSubFunction
 
                                         if (shipmentResponse.IsSuccessStatusCode)
                                         {
-                                            return Task.CompletedTask;
+                                          
                                         }
 
                                     }

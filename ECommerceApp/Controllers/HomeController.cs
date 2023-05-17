@@ -15,6 +15,7 @@ using System.Web;
 using System.Text.RegularExpressions;
 using System.Net.Http;
 using System.Security.Policy;
+using ECommerceApp.DataAccess;
 
 namespace ECommerceApp.Controllers
 {
@@ -22,11 +23,13 @@ namespace ECommerceApp.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private bool loggedIn =false;
+        PubSubRepositary _pubSub;
 
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, PubSubRepositary pubSub)
         {
             _logger = logger;
+            _pubSub = pubSub;
         }
 
         public IActionResult Index()
@@ -241,6 +244,7 @@ namespace ECommerceApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Order(string url)
         {
+
             using (var client = new HttpClient())
             {
                 url = HttpUtility.UrlEncode(url);
@@ -262,6 +266,8 @@ namespace ECommerceApp.Controllers
                     ProductDetail productDetail = await response.Content.ReadAsAsync<ProductDetail>();
 
                     string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    
+                    /*
 
                     Order o = new Order();
 
@@ -273,9 +279,10 @@ namespace ECommerceApp.Controllers
                     o.ProductName = productDetail.ProductName;
                     o.image = productDetail.Image;
                     o.PaymentId = "";
+                    */
 
-                    
-                   
+
+                    double totalPrice = 0;
                     if(!(productDetail.ShippingPrice.ToLower().Equals("free")))
                     {
                         string stringPrice = Regex.Replace(productDetail.ShippingPrice, "\\$", "");
@@ -284,17 +291,27 @@ namespace ECommerceApp.Controllers
                         stringPrice = Regex.Replace(productDetail.Pricing, "\\$", "");
                         double price = double.Parse(stringPrice);
 
-                        double totalPrice = shipping + price;
-                        o.Price = totalPrice;
+                        totalPrice = shipping + price;
+                        //o.Price = totalPrice;
 
 
                     }
                     else
                     {
                         string stringPrice = Regex.Replace(productDetail.Pricing, "\\$", "");
-                        o.Price = double.Parse(stringPrice);
+                        totalPrice = double.Parse(stringPrice);
+                        //o.Price = double.Parse(stringPrice);
+
                     }
 
+                    string OrderId = Guid.NewGuid().ToString();
+
+
+                    return RedirectToAction("Payment", new { price = totalPrice, orderId = OrderId, ProductUrl = url });
+
+
+
+                    /*
                     o.Status = "Order Is Waiting Payment";
                     o.Paid = false;
 
@@ -312,9 +329,10 @@ namespace ECommerceApp.Controllers
 
                         if (OrderedResponse.IsSuccessStatusCode)
                         {
-                            return RedirectToAction("Payment", new { price = o.Price, orderId = o.OrderId });
+                            return RedirectToAction("Payment", new { price = o.Price, orderId = o.OrderId , o.ProductUrl});
                         }
                     }
+                    */
                         
                 }
             }
@@ -323,12 +341,13 @@ namespace ECommerceApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult Payment(double price, string orderId)
+        public IActionResult Payment(double price, string orderId,string ProductUrl)
         {
             PaymentViewModel pvm = new PaymentViewModel
             {
                 Price = price,
-                OrderId = orderId
+                OrderId = orderId,
+                ProductUrl = ProductUrl
             };
 
             return View(pvm);
@@ -336,10 +355,11 @@ namespace ECommerceApp.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Payment(Payment payment, string OrderId, double Price)
+        public async Task<IActionResult> Payment(Payment payment, string OrderId, double Price,string ProductUrl)
         {
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+            /*
             Payment newPayment = new Payment();
 
             string PaymentId = Guid.NewGuid().ToString();
@@ -351,9 +371,18 @@ namespace ECommerceApp.Controllers
             newPayment.Amount = Price;
             newPayment.CardNumber = payment.CardNumber;
             newPayment.Address = payment.Address;
+            */
 
-
+            transferingModel tm = new transferingModel();
+            tm.ProductUrl = ProductUrl;
+            tm.CardNumber = payment.CardNumber;
+            tm.Addess = payment.Address;
+            tm.UserId = userId;
             //pub sub 
+
+            _pubSub.PushMessage(tm);
+
+            /*
 
             using (var client = new HttpClient())
             {
@@ -425,6 +454,7 @@ namespace ECommerceApp.Controllers
                     }
                 }
             }
+            */
             return View("index");
         }
 

@@ -1,7 +1,19 @@
+using ECommerceApp.DataAccess;
 using Google.Api;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
+
+string projectId = "distributedprogramming-386320";
+
+
+builder.Services.AddScoped<PubSubRepositary>(provider => new PubSubRepositary(projectId));
+
+var environment = builder.Services.BuildServiceProvider().GetRequiredService<IWebHostEnvironment>();
+
+string credential_path = System.IO.Path.Combine(environment.ContentRootPath, "distributedprogramming-386320-7cd52fa89f04.json");
+
+System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credential_path);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
