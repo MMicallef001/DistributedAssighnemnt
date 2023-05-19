@@ -9,15 +9,15 @@ namespace PubSubFunction
         public string OrderId { get; set; }
 
         [FirestoreProperty]
+        public string ProductAsin { get; set; }
+
+        [FirestoreProperty]
         public string ProductId { get; set; }
         [FirestoreProperty]
         public string PaymentId { get; set; }
 
         [FirestoreProperty]
         public string UserId { get; set; }
-
-        [FirestoreProperty]
-        public string ProductAsin { get; set; }
 
         [FirestoreProperty]
         public string ProductName { get; set; }
@@ -33,6 +33,5 @@ namespace PubSubFunction
 
         [FirestoreProperty]
         public bool Paid { get; set; }
-
     }
 }

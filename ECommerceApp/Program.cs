@@ -8,6 +8,8 @@ string projectId = "distributedprogramming-386320";
 
 
 builder.Services.AddScoped<PubSubRepositary>(provider => new PubSubRepositary(projectId));
+builder.Services.AddScoped<ShippingPubSubRepo>(provider => new ShippingPubSubRepo(projectId));
+
 
 var environment = builder.Services.BuildServiceProvider().GetRequiredService<IWebHostEnvironment>();
 

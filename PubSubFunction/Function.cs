@@ -36,7 +36,7 @@ namespace PubSubFunction
             
              _logger.LogInformation($"Before using");
             _logger.LogInformation($"Data Received is {model.CardNumber}");
-            _logger.LogInformation($"Data Received is {model.ProductAsin}");
+            _logger.LogInformation($"Data Received is {model.Asin}");
 
             _logger.LogInformation($"Data Received is {model.UserID}");
             _logger.LogInformation($"Data Received is {model.Addess}");
@@ -51,7 +51,7 @@ namespace PubSubFunction
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + model.ProductAsin);
+                HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + model.Asin);
                 //HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + url);
 
                  _logger.LogInformation($"Data Received is {response.IsSuccessStatusCode}");
@@ -99,6 +99,11 @@ namespace PubSubFunction
 
                     }
                     */
+
+                    string stringPrice = productDetail.Pricing;
+
+                    o.Price = double.Parse(stringPrice);
+
                     o.Status = "Order Is Waiting Payment";
                     o.Paid = true;
 
@@ -122,6 +127,8 @@ namespace PubSubFunction
 
                         if (OrderedResponse.IsSuccessStatusCode)
                         {
+                            _logger.LogInformation($"order successful");
+
                            // return RedirectToAction("Payment", new { price = o.Price, orderId = o.OrderId });
 
 

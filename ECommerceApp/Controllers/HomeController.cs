@@ -24,12 +24,14 @@ namespace ECommerceApp.Controllers
         private readonly ILogger<HomeController> _logger;
         private bool loggedIn =false;
         PubSubRepositary _pubSub;
+        ShippingPubSubRepo _shippingPrubSubRepo;
 
 
-        public HomeController(ILogger<HomeController> logger, PubSubRepositary pubSub)
+        public HomeController(ILogger<HomeController> logger, PubSubRepositary pubSub, ShippingPubSubRepo shippingPrubSubRepo)
         {
             _logger = logger;
             _pubSub = pubSub;
+            _shippingPrubSubRepo = shippingPrubSubRepo; 
         }
 
         public IActionResult Index()
@@ -577,6 +579,9 @@ namespace ECommerceApp.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateShipment(Shipment s)
         {
+
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Clear();
@@ -591,6 +596,8 @@ namespace ECommerceApp.Controllers
                     return View("index");
                 }
             }
+
+            _shippingPrubSubRepo.PushMessage(s, userId);
             return View("Index");
 
         }
