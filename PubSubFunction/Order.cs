@@ -17,7 +17,7 @@ namespace PubSubFunction
         public string UserId { get; set; }
 
         [FirestoreProperty]
-        public string ProductUrl { get; set; }
+        public string ProductAsin { get; set; }
 
         [FirestoreProperty]
         public string ProductName { get; set; }

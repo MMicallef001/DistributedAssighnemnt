@@ -20,9 +20,6 @@ namespace Common.Models
         public string UserId { get; set; }
 
         [FirestoreProperty]
-        public string ProductUrl { get; set; }
-
-        [FirestoreProperty]
         public string ProductName { get; set; }
 
         [FirestoreProperty]

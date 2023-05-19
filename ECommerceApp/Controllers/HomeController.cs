@@ -180,9 +180,9 @@ namespace ECommerceApp.Controllers
         {
             using (var client = new HttpClient())
             {
-                //client.BaseAddress = new Uri("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/");
+                client.BaseAddress = new Uri("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/");
                 
-                client.BaseAddress = new Uri("https://localhost:7074/api/ProductsMicroservice/");
+                //client.BaseAddress = new Uri("https://localhost:7074/api/ProductsMicroservice/");
 
             
 
@@ -217,8 +217,8 @@ namespace ECommerceApp.Controllers
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                //HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + encodedUrl);
-                HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + asin);
+                HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + asin);
+                //HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + asin);
 
 
                 if (response.IsSuccessStatusCode)
@@ -253,8 +253,8 @@ namespace ECommerceApp.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                //HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + asin);
-                HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + asin);
+                HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + asin);
+                //HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + asin);
 
 
 
@@ -502,7 +502,7 @@ namespace ECommerceApp.Controllers
 
                     Order orderDetails = await OrderedResponse.Content.ReadAsAsync<Order>();
 
-                    orderDetails.ProductUrl = HttpUtility.UrlDecode(orderDetails.ProductUrl);
+                    //orderDetails.ProductUrl = HttpUtility.UrlDecode(orderDetails.ProductUrl);
 
                     return View("GetOrderDetails", orderDetails);
                 }

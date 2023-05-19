@@ -36,7 +36,7 @@ namespace PubSubFunction
             
              _logger.LogInformation($"Before using");
             _logger.LogInformation($"Data Received is {model.CardNumber}");
-            _logger.LogInformation($"Data Received is {model.ProductUrl}");
+            _logger.LogInformation($"Data Received is {model.ProductAsin}");
 
             _logger.LogInformation($"Data Received is {model.UserID}");
             _logger.LogInformation($"Data Received is {model.Addess}");
@@ -44,14 +44,14 @@ namespace PubSubFunction
 
 
             using (var client = new HttpClient()){
-                string url = HttpUtility.UrlEncode(model.ProductUrl);
+                //string url = HttpUtility.UrlEncode(model.ProductUrl);
 
 
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + url);
+                HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + model.ProductAsin);
                 //HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + url);
 
                  _logger.LogInformation($"Data Received is {response.IsSuccessStatusCode}");
@@ -69,11 +69,12 @@ namespace PubSubFunction
                     o.OrderId = Guid.NewGuid().ToString();
                     o.ProductId = productDetail.Id;
                     o.UserId = userId;
-                    o.ProductUrl = url;
+                    o.ProductAsin = productDetail.Asin;
                     o.ProductName = productDetail.ProductName;
                     o.image = productDetail.Image;
                     o.PaymentId = "";
 
+                    /*
                     _logger.LogInformation($"order object created{o}");
                    
                     if(!(productDetail.ShippingPrice.ToLower().Equals("free")))
@@ -97,7 +98,7 @@ namespace PubSubFunction
                         _logger.LogInformation($"price converted");
 
                     }
-
+                    */
                     o.Status = "Order Is Waiting Payment";
                     o.Paid = true;
 
