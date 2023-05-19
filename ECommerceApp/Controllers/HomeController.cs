@@ -141,6 +141,38 @@ namespace ECommerceApp.Controllers
             return View();
         }
 
+
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetUserDetails()
+        {
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage response = await client.GetAsync("https://customerapi-pqkchsrqxa-uc.a.run.app/api/UserMicroservice/" + userId);
+                //tpResponseMessage OrderedResponse = await orderClient.GetAsync("https://localhost:7202/api/OrdersMicroservice/GetOrderDetails/" + OrderId);
+
+
+                if (response.IsSuccessStatusCode)
+                {
+
+                    User userDetails = await response.Content.ReadAsAsync<User>();
+
+                    //orderDetails.ProductUrl = HttpUtility.UrlDecode(orderDetails.ProductUrl);
+
+                    return View("GetUserDetails", userDetails);
+                }
+
+            }
+            return View("index");
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> Login()
         {
@@ -625,10 +657,33 @@ namespace ECommerceApp.Controllers
 
         }
 
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetShipmentDetails(string orderId)
+        {
+
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage response = await client.GetAsync("https://shippingmicroservice-pqkchsrqxa-uc.a.run.app/api/ShippingMicroservice/GetShipmentDetails/" + orderId);
+                //tpResponseMessage OrderedResponse = await orderClient.GetAsync("https://localhost:7202/api/OrdersMicroservice/GetOrderDetails/" + OrderId);
 
 
-        //shipping and notifications
+                if (response.IsSuccessStatusCode)
+                {
 
+                    Shipment shipmentDetails = await response.Content.ReadAsAsync<Shipment>();
+
+                    //orderDetails.ProductUrl = HttpUtility.UrlDecode(orderDetails.ProductUrl);
+
+                    return View("GetShipmentDetails", shipmentDetails);
+                }
+
+            }
+            return View("index");
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

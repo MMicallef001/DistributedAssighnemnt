@@ -59,6 +59,11 @@
                         <input type="hidden" name="OrderId" value="@item.OrderId" />
                         <input type="submit" value="Payment Details" class="btn btn-primary" />
                     </form>
+
+                        <form method="get" asp-action="GetShipmentDetails" class="m-2">
+                            <input type="hidden" name="OrderId" value="@item.OrderId" />
+                            <input type="submit" value="Shipment Details" class="btn btn-primary" />
+                        </form>
                 }
             </td>
         </tr>

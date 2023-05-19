@@ -1,0 +1,27 @@
+﻿@model Common.Models.Shipment
+
+@{
+    ViewData["Title"] = "GetShipmentDetails";
+}
+
+<h1>GetShipmentDetails</h1>
+
+<div>
+    <h4>Shipment</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.OrderId)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.OrderId)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+    </dl>
+</div>
+
