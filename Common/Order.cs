@@ -9,6 +9,9 @@ namespace Common.Models
         public string OrderId { get; set; }
 
         [FirestoreProperty]
+        public string ProductAsin { get; set; }
+
+        [FirestoreProperty]
         public string ProductId { get; set; }
         [FirestoreProperty]
         public string PaymentId { get; set; }

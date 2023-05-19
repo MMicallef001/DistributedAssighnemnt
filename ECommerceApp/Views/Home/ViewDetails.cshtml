@@ -11,14 +11,13 @@
 </div>
 
 <div>
-    <h3>Brand: @Model.Brand</h3>
+    <h3>Name: @Model.ProductName</h3>
     <p>Price: @Model.Pricing</p>
-    <p>Shipping Price: @Model.ShippingPrice</p>
 </div>
 
 <div>
     <form method="post" asp-action="Order" class="m-2">
-        <input type="hidden" name="Url" value="@Model.EncodedUrl" />
+        <input type="hidden" name="Url" value="@Model.Asin" />
         <input type="submit" value="Order" class="btn btn-primary" />
     </form>
 </div>

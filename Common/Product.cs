@@ -8,6 +8,7 @@ namespace Common
 {
     public class Product
     {
+        public string Asin { get; set; }
         public string Image { get; set; }
         public string Name { get; set; }
         public string price { get; set; }

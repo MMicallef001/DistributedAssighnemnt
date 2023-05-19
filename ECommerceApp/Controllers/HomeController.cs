@@ -180,9 +180,9 @@ namespace ECommerceApp.Controllers
         {
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/");
+                //client.BaseAddress = new Uri("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/");
                 
-                //client.BaseAddress = new Uri("https://localhost:7074/api/ProductsMicroservice/");
+                client.BaseAddress = new Uri("https://localhost:7074/api/ProductsMicroservice/");
 
             
 
@@ -203,24 +203,22 @@ namespace ECommerceApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ViewDetails(string url)
+        public async Task<IActionResult> ViewDetails(string asin)
         {
             using (var client = new HttpClient())
             {
                 //client.BaseAddress = new Uri("https://localhost:7074/api/ProductsMicroservice/");
-                client.BaseAddress = new Uri("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/");
-
-
+                //client.BaseAddress = new Uri("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/");
 
             
 
-                string encodedUrl = HttpUtility.UrlEncode(url);
+                //string encodedUrl = HttpUtility.UrlEncode(url);
 
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + encodedUrl);
-                //HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + encodedUrl);
+                //HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + encodedUrl);
+                HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + asin);
 
 
                 if (response.IsSuccessStatusCode)
@@ -234,6 +232,7 @@ namespace ECommerceApp.Controllers
 
             return RedirectToAction("Index");
         }
+
         [HttpGet]
         public IActionResult ViewDetails(ProductDetail ProductDetails)
         {
@@ -242,20 +241,20 @@ namespace ECommerceApp.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Order(string url)
+        public async Task<IActionResult> Order(string asin)
         {
 
             using (var client = new HttpClient())
             {
-                url = HttpUtility.UrlEncode(url);
+                //url = HttpUtility.UrlEncode(url);
 
 
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 
-                HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + url);
-                //HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + url);
+                //HttpResponseMessage response = await client.GetAsync("https://productcatalougemicroservice-pqkchsrqxa-uc.a.run.app/api/ProductsMicroservice/" + asin);
+                HttpResponseMessage response = await client.GetAsync("https://localhost:7074/api/ProductsMicroservice/" + asin);
 
 
 
@@ -281,7 +280,7 @@ namespace ECommerceApp.Controllers
                     o.PaymentId = "";
                     */
 
-
+                    /*
                     double totalPrice = 0;
                     if(!(productDetail.ShippingPrice.ToLower().Equals("free")))
                     {
@@ -303,11 +302,11 @@ namespace ECommerceApp.Controllers
                         //o.Price = double.Parse(stringPrice);
 
                     }
-
+                    */
                     string OrderId = Guid.NewGuid().ToString();
 
 
-                    return RedirectToAction("Payment", new { price = totalPrice, orderId = OrderId, ProductUrl = url });
+                    return RedirectToAction("Payment", new { price = productDetail.Pricing, orderId = OrderId, ProductAsin = asin });
 
 
 
@@ -341,13 +340,13 @@ namespace ECommerceApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult Payment(double price, string orderId,string ProductUrl)
+        public IActionResult Payment(double price, string orderId,string ProductAsin)
         {
             PaymentViewModel pvm = new PaymentViewModel
             {
                 Price = price,
                 OrderId = orderId,
-                ProductUrl = ProductUrl
+                Asin = ProductAsin
             };
 
             return View(pvm);
@@ -355,7 +354,7 @@ namespace ECommerceApp.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Payment(Payment payment, string OrderId, double Price,string ProductUrl)
+        public async Task<IActionResult> Payment(Payment payment, string OrderId, double Price, string asin)
         {
             string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -374,7 +373,7 @@ namespace ECommerceApp.Controllers
             */
 
             transferingModel tm = new transferingModel();
-            tm.ProductUrl = ProductUrl;
+            tm.Asin = asin;
             tm.CardNumber = payment.CardNumber;
             tm.Addess = payment.Address;
             tm.UserId = userId;

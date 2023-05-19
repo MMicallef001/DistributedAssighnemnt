@@ -23,12 +23,12 @@
         <p>Price: @product.price</p>
 
         <form method="post" asp-action="ViewDetails" class="m-2">
-            <input type="hidden" name="Url" value="@product.Url" />
+            <input type="hidden" name="asin" value="@product.Asin" />
             <input type="submit" value="View Details" class="btn btn-primary" />
         </form>
 
         <form method="post" asp-action="Order" class="m-2">
-            <input type="hidden" name="Url" value="@product.Url" />
+            <input type="hidden" name="asin" value="@product.Asin" />
             <input type="submit" value="Order" class="btn btn-primary" />
         </form>
     </div>

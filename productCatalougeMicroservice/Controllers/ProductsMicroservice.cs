@@ -27,7 +27,7 @@ namespace productCatalougeMicroservice.Controllers
                 Headers =
                 {
                     { "X-RapidAPI-Key", "e06f6b3ae2msh236205caad93a4dp1c44b1jsn57b46b439a7d" },
-                    { "X-RapidAPI-Host", "amazon-data-scraper124.p.rapidapi.com" },
+                    { "X-RapidAPI-Host", "axesso-axesso-amazon-data-service-v1.p.rapidapi.com" },
                 },
             };
 
@@ -42,15 +42,22 @@ namespace productCatalougeMicroservice.Controllers
         [HttpPost("LoadProducts/{category}")]
         public async Task<List<Product>> LoadProducts(string category)
         {
-            string requestUri = "https://amazon-data-scraper124.p.rapidapi.com/search/"+category+"?api_key=393ff3e8406791ceb99f57836935aa52";
 
-            JsonDocument jsonDoc = GetResponse(requestUri).Result;
+            //"https://axesso-axesso-amazon-data-service-v1.p.rapidapi.com/amz/amazon-search-by-keyword-asin?domainCode=de&keyword=Laptop&page=1&excludeSponsored=false&sortBy=relevanceblender&withCache=true"
+
+
+            //string requestUri = "https://amazon-data-scraper124.p.rapidapi.com/search/"+category+"?api_key=393ff3e8406791ceb99f57836935aa52";
+
+            string requestUri = "https://axesso-axesso-amazon-data-service-v1.p.rapidapi.com/amz/amazon-search-by-keyword-asin?domainCode=de&keyword="+category+"&page=1&excludeSponsored=false&sortBy=relevanceblender&withCache=true";
+
+            JsonDocument jsonDoc =  GetResponse(requestUri).Result;
 
             string jsonString = jsonDoc.RootElement.ToString();
 
             var jsonData = JsonConvert.DeserializeObject<RootObject>(jsonString);
 
             // Create a list to hold the products
+            /*
             List<Product> products = new List<Product>();
 
             // Iterate through the results and create Product objects
@@ -66,21 +73,34 @@ namespace productCatalougeMicroservice.Controllers
 
                 products.Add(product);
             }
+            */
+            
+            List<Product> products = jsonData.searchProductDetails.Select(p => new Product
+            {
+                Asin = p.asin,
+                Image = p.imgUrl,
+                Name = p.productDescription,
+                price = p.price.ToString(),
+                Url = p.dpUrl
+            }).ToList();
 
             return products;
         }
 
-        [HttpGet("{url}")]
-        public ProductDetail GetProductDetails(string url)
+        [HttpGet("{asin}")]
+        public ProductDetail GetProductDetails(string asin)
         {
-            string id = ExtractProductId(url);
+            //string id = ExtractProductId(url);
 
-            if (string.IsNullOrEmpty(id))
-            {
-                return null;
-            }
+            //if (string.IsNullOrEmpty(id))
+            //{
+            //    return null;
+            //}
 
-            string requestUri = "https://amazon-data-scraper124.p.rapidapi.com/products/"+id+"?api_key=393ff3e8406791ceb99f57836935aa52";
+            //string requestUri = "https://amazon-data-scraper124.p.rapidapi.com/products/"+id+"?api_key=393ff3e8406791ceb99f57836935aa52";
+
+            string requestUri = "https://axesso-axesso-amazon-data-service-v1.p.rapidapi.com/amz/amazon-search-by-keyword-asin?domainCode=de&keyword=" + asin + "&page=1&excludeSponsored=false&sortBy=relevanceblender&withCache=true";
+
 
             JsonDocument jsonDoc = GetResponse(requestUri).Result;
 
@@ -88,16 +108,18 @@ namespace productCatalougeMicroservice.Controllers
 
             JObject jsonObj = JObject.Parse(jsonString);
 
+            var productDetailsData = jsonObj["searchProductDetails"].First;
+
+
             ProductDetail productDetails = new ProductDetail
             {
-                Id= id,
-                Brand = (string)jsonObj["brand"],
-                Pricing = (string)jsonObj["pricing"],
-                ProductName = (string)jsonObj["name"],
-                FullDescription = (string)jsonObj["full_description"],
-                ShippingPrice = (string)jsonObj["shipping_price"],
-                EncodedUrl = url,
-                Image = (string)jsonObj["images"][0] 
+                Id= asin,
+                Pricing = productDetailsData["price"].ToString(),
+                ProductName = (string)productDetailsData["productDescription"],
+                FullDescription = (string)productDetailsData["productDescription"],
+                Image = (string)productDetailsData["imgUrl"],
+                Asin = (string)productDetailsData["asin"]
+
             };
 
             return productDetails;

@@ -2,7 +2,7 @@
 {
     public class RootObject
     {
-        public List<Result> results { get; set; }
+        public List<Result> searchProductDetails { get; set; }
 
     }
 }

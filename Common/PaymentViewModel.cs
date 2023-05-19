@@ -10,6 +10,6 @@ namespace Common.Models
     {
         public double Price { get; set; }
         public string OrderId { get; set; }
-        public string ProductUrl { get; set; }
+        public string Asin { get; set; }
     }
 }
