@@ -11,6 +11,7 @@ using System.Net.Http.Json;
 using System;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using Google.Cloud.Firestore;
 
 namespace PubSubFunction
 {
@@ -44,7 +45,6 @@ namespace PubSubFunction
 
 
             using (var client = new HttpClient()){
-                //string url = HttpUtility.UrlEncode(model.ProductUrl);
 
 
                 client.DefaultRequestHeaders.Clear();
@@ -74,34 +74,9 @@ namespace PubSubFunction
                     o.image = productDetail.Image;
                     o.PaymentId = "";
 
-                    /*
-                    _logger.LogInformation($"order object created{o}");
-                   
-                    if(!(productDetail.ShippingPrice.ToLower().Equals("free")))
-                    {
-                        string stringPrice = Regex.Replace(productDetail.ShippingPrice, "\\$", "");
-                        double shipping = double.Parse(stringPrice);
-
-                        stringPrice = Regex.Replace(productDetail.Pricing, "\\$", "");
-                        double price = double.Parse(stringPrice);
-
-                        double totalPrice = shipping + price;
-                        o.Price = totalPrice;
-                        
-                        _logger.LogInformation($"price converted");
-
-                    }
-                    else
-                    {
-                        string stringPrice = Regex.Replace(productDetail.Pricing, "\\$", "");
-                        o.Price = double.Parse(stringPrice);
-                        _logger.LogInformation($"price converted");
-
-                    }
-                    */
 
                     string stringPrice = productDetail.Pricing;
-
+                    
                     o.Price = double.Parse(stringPrice);
 
                     o.Status = "Order Is Waiting Payment";
@@ -127,10 +102,6 @@ namespace PubSubFunction
 
                         if (OrderedResponse.IsSuccessStatusCode)
                         {
-                            _logger.LogInformation($"order successful");
-
-                           // return RedirectToAction("Payment", new { price = o.Price, orderId = o.OrderId });
-
 
                             Payment newPayment = new Payment();
 
@@ -175,7 +146,10 @@ namespace PubSubFunction
 
                                         if (shipmentResponse.IsSuccessStatusCode)
                                         {
-                                          
+                                            DateTime dateTime = DateTime.UtcNow;
+                                            
+
+                                            SendNotification(s.Status,dateTime,userId);
                                         }
 
                                     }
@@ -187,6 +161,38 @@ namespace PubSubFunction
                 }
             }
 
-        }   
+        }
+
+        private async void SendNotification(string notification, System.DateTime timeStamp,string userId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                Notification n = new Notification();
+
+                n.Timastamp = Google.Cloud.Firestore.Timestamp.FromDateTime(timeStamp.ToUniversalTime());
+
+                DateTime dateTime = DateTime.UtcNow;
+                Timestamp timestamp = Timestamp.FromDateTime(dateTime);
+
+                n.Timastamp = timestamp;
+                n.NotificanMessage = notification;
+                n.NotificationId = Guid.NewGuid().ToString();
+                n.UserId = userId;
+
+                HttpResponseMessage response = await client.PostAsJsonAsync("https://notificationmicroservice-pqkchsrqxa-uc.a.run.app/api/NotificationMicroservice/AddNotification/", n);
+
+                //HttpResponseMessage response = await client.PostAsJsonAsync("https://localhost:7149/api/NotificationMicroservice/AddNotification/", n);
+
+                if (response.IsSuccessStatusCode)
+                {
+
+                }
+
+            }
+
+        }
     }
 }

@@ -53,7 +53,7 @@ public class Function : ICloudEventFunction<MessagePublishedData>
 
                 if (UpdatedOrderedResponse.IsSuccessStatusCode)
                 {
-                    _logger.LogInformation($"Successful");
+                    _logger.LogInformation($"Successful shipment update");
                     SendNotification(s.Status,DateTime.Now, userId);
                 }
                 _logger.LogInformation($"Not successful");
@@ -62,6 +62,8 @@ public class Function : ICloudEventFunction<MessagePublishedData>
     
     private async void SendNotification(string notification, System.DateTime timeStamp,string userId)
         {
+
+            _logger.LogInformation($"In send Notification");
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Clear();
@@ -78,6 +80,13 @@ public class Function : ICloudEventFunction<MessagePublishedData>
                 n.NotificanMessage = notification;
                 n.NotificationId = Guid.NewGuid().ToString();
                 n.UserId = userId;
+                
+                _logger.LogInformation($"n.Tim" + n.Timastamp );
+                _logger.LogInformation($"n.NotificanMessage" + n.NotificanMessage );
+
+                _logger.LogInformation($"n.NotificationId" + n.NotificationId );
+                _logger.LogInformation($"n.UserId" + n.UserId );
+
 
                 //HttpResponseMessage response = await client.PostAsJsonAsync("https://shippingmicroservice-pqkchsrqxa-uc.a.run.app/api/NotificationMicroservice/AddShipment/", notification);
 
@@ -87,6 +96,10 @@ public class Function : ICloudEventFunction<MessagePublishedData>
                 {
                     _logger.LogInformation($"Successful send notif");
                 }
+
+                _logger.LogInformation($"response" + response);
+                _logger.LogInformation($"response requestmessage" + response.RequestMessage);
+
 
             }
             _logger.LogInformation($"not successful send notif");

@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Common.Models.Notification>
+
+@{
+    ViewData["Title"] = "GetUserNotifications";
+}
+
+<h1>GetUserNotifications</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.NotificationId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NotificanMessage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DtTimastamp)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.NotificationId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NotificanMessage)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DtTimastamp)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

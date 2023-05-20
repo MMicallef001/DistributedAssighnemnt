@@ -1,5 +1,5 @@
-﻿using Google.Cloud.Firestore;
-using NotificationMicroservice.Models;
+﻿using Common.Models;
+using Google.Cloud.Firestore;
 
 namespace NotificationMicroservice.DataAccess
 {

@@ -22,9 +22,6 @@
                 @Html.DisplayNameFor(model => model.Price)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Paid)
             </th>
             <th></th>
@@ -40,11 +37,9 @@
                 <img src="@item.image" alt="Product Image" class="product-image" />
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Price)
+                    &euro; @Html.DisplayFor(modelItem => item.Price)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
+
             <td>
                 @Html.DisplayFor(modelItem => item.Paid)
             </td>

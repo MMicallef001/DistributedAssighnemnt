@@ -24,9 +24,9 @@ namespace PubSubFunction{
                 n.NotificationId = Guid.NewGuid().ToString();
                 n.UserId = userId;
 
-                //HttpResponseMessage response = await client.PostAsJsonAsync("https://shippingmicroservice-pqkchsrqxa-uc.a.run.app/api/NotificationMicroservice/AddShipment/", notification);
+                HttpResponseMessage response = await client.PostAsJsonAsync("https://notificationmicroservice-pqkchsrqxa-uc.a.run.app/AddNotification/", n);
 
-                HttpResponseMessage response = await client.PostAsJsonAsync("https://localhost:7149/api/NotificationMicroservice/AddNotification/", n);
+                //HttpResponseMessage response = await client.PostAsJsonAsync("https://localhost:7149/api/NotificationMicroservice/AddNotification/", n);
 
                 if (response.IsSuccessStatusCode)
                 {

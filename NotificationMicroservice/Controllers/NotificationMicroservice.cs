@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NotificationMicroservice.DataAccess;
-using NotificationMicroservice.Models;
+using Common.Models;
 using System.Text.Json;
 
 namespace NotificationMicroservice.Controllers
@@ -18,7 +18,7 @@ namespace NotificationMicroservice.Controllers
         }
 
 
-        [HttpPost()]
+        [HttpPost("AddNotification")]
         public async Task<IActionResult> AddNotification(Notification n)
         {
 

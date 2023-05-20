@@ -20,7 +20,7 @@
     <div>
         <img src="@product.Image" alt="Product Image" class="product-image" />
         <h5>@product.Name</h5>
-        <p>Price: @product.price</p>
+        <p>Price:&euro; @product.price</p>
 
         <form method="post" asp-action="ViewDetails" class="m-2">
             <input type="hidden" name="asin" value="@product.Asin" />

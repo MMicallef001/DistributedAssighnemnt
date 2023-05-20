@@ -1,6 +1,6 @@
 ﻿using Google.Cloud.Firestore;
 
-namespace NotificationMicroservice.Models
+namespace Common.Models
 {
     [FirestoreData]
     public class Notification
